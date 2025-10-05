@@ -1,0 +1,7 @@
+/.idea
+/.history
+/vendor
+/runtime/*
+*.log
+.env
+.php-cs-fixer.cache
