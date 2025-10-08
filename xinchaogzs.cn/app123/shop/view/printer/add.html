@@ -1,0 +1,319 @@
+{extend name="common/layout" /}
+{block name="header"}
+<style>
+    #map {
+        height: 600px;
+    }
+</style>
+{/block}
+{block name="content"}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">编辑打印机</h3>
+    </div>
+    <div class="card-body">
+        <form class="form-horizontal" method="post" data-ajax="">
+            <input type="hidden" name="id" value="{$id|default=''}">
+            <div class="card-body">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">设备ID</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" required value="{$device_id}" disabled
+                               autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">设备密钥</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" required value="{$device_key}" disabled
+                               autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">设备名称</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="name" required value="{$name|default=''}"
+                               autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">设备状态</label>
+                    <div class="col-sm-10">
+                        <select name="status" class="form-control" required>
+                            <option value="1" {if isset($status)&&$status==1}selected="selected"{/if}>营业中</option>
+                            <option value="0" {if isset($status)&&$status==0}selected="selected"{/if}>暂停中</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">营业时间</label>
+                    <div class="col-sm-10">
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">开始时间</div>
+                            </div>
+                            <input type="time" name="business_hours[0][opening]" required class="form-control"
+                                   value="{$business_hours[0]['opening']|default='09:00'}">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">结束时间</div>
+                            </div>
+                            <input type="time" name="business_hours[0][close]" required class="form-control"
+                                   value="{$business_hours[0]['close']|default='12:00'}">
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">开始时间</div>
+                            </div>
+                            <input type="time" name="business_hours[1][opening]" class="form-control"
+                                   value="{$business_hours[1]['opening']|default='14:00'}">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">结束时间</div>
+                            </div>
+                            <input type="time" name="business_hours[1][close]" class="form-control"
+                                   value="{$business_hours[1]['close']|default='18:00'}">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">纸张数量</label>
+                    <div class="col-sm-10">
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">A3纸数量</div>
+                            </div>
+                            <input type="text" name="page_a3" class="form-control" required
+                                   value="{$page_a3|default='0'}">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">A4纸数量</div>
+                            </div>
+                            <input type="text" name="page_a4" class="form-control" required
+                                   value="{$page_a4|default='0'}">
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">照片纸数量</div>
+                            </div>
+                            <input type="text" name="page_photo" class="form-control" required
+                                   value="{$page_photo|default='0'}">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">设备公告</label>
+                    <div class="col-sm-10">
+                        <textarea name="tips" class="form-control" cols="30" rows="3">{$tips|default=''}</textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">打印机功能 <span class="badge badge-danger">New</span></label>
+                    <div class="col-sm-10 d-flex align-items-center">
+                        <div class="checkbox checkbox-primary form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="checkbox_5" name="functions[A4]" {if
+                                   isset($functions.A4)}checked{/if} value="1">
+                            <label class="form-check-label" for="checkbox_5">A4打印</label>
+                        </div>
+                        <div class="checkbox checkbox-primary form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="checkbox_6" name="functions[A3]" {if
+                                   isset($functions.A3)}checked{/if} value="1">
+                            <label class="form-check-label" for="checkbox_6">A3打印</label>
+                        </div>
+                        <div class="checkbox checkbox-primary form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="checkbox_7" name="functions[C6]" {if
+                                   isset($functions.C6)}checked{/if} value="1">
+                            <label class="form-check-label" for="checkbox_7">照片打印</label>
+                        </div>
+                        <div class="checkbox checkbox-primary form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="checkbox_1"
+                                   name="functions[single_side]" {if isset($functions.single_side)}checked{/if}
+                            value="1">
+                            <label class="form-check-label" for="checkbox_1">单面打印</label>
+                        </div>
+                        <div class="checkbox checkbox-primary form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="checkbox_2"
+                                   name="functions[double_side]" {if isset($functions.double_side)}checked{/if}
+                            value="1">
+                            <label class="form-check-label" for="checkbox_2">双面打印</label>
+                        </div>
+                        <div class="checkbox checkbox-primary form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="checkbox_3"
+                                   name="functions[black_white]" {if isset($functions.black_white)}checked{/if}
+                            value="1">
+                            <label class="form-check-label" for="checkbox_3">黑白打印</label>
+                        </div>
+                        <div class="checkbox checkbox-primary form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="checkbox_4" name="functions[colorful]"
+                                   {if isset($functions.colorful)}checked{/if} value="1">
+                            <label class="form-check-label" for="checkbox_4">彩色打印</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">投放地址</label>
+                    <div class="col-sm-10">
+                        <div class="input-group">
+                            <span class="input-group-text">地址</span>
+                            <select name="address_txt" class="col-sm-4 form-control">
+                            </select>
+                            <input type="text" class="form-control" name="address" value="{$address|default=''}"
+                                   autocomplete="off">
+                            <div id="qt" class="btn btn-info">查询</div>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text">坐标lat</span>
+                            <input type="text" class="form-control" name="lat" value="{$lat|default=''}">
+                            <span class="input-group-text">坐标lng</span>
+                            <input type="text" class="form-control" name="lng" value="{$lng|default=''}">
+                        </div>
+                        <div id="map" style="margin-top: 10px;"></div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="offset-sm-2 col-sm-10">
+                        <button type="submit" class="btn btn-info">保存</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{/block}
+{block name="footer"}
+<script charset="utf-8"
+        src="https://map.qq.com/api/js?v=2.exp&key={$key}&libraries=place"></script>
+{$upload|raw}
+{$select2|raw}
+<script>
+
+    var lat = {$lat |
+    default
+    = '37.85778'
+    }
+    ;
+    var lng = {$lng |
+    default
+    = '112.54841'
+    }
+    ;
+    var myLatlng = new qq.maps.LatLng(lat, lng);
+    var myOptions = {
+        zoom: 14,               //设置地图缩放级别
+        center: myLatlng,      //设置中心点样式
+        mapTypeId: qq.maps.MapTypeId.ROADMAP,  //设置地图样式详情参见MapType
+    }
+    var map = new qq.maps.Map($("#map").get(0), myOptions);
+    let label = new qq.maps.Label({
+        map: map,
+        offset: new qq.maps.Size(15, -12),
+        draggable: false,
+        clickable: false
+    });
+    //2d7cadd6-1bd0-4fb0-8511-d8042cd4e7c3.png
+    if (lat != '37.85778' && lng != '112.54841') {
+        new qq.maps.Marker({
+            position: new qq.maps.LatLng(lat, lng),
+            map: map
+        });
+    }
+
+    url = "https://apis.map.qq.com/ws/location/v1/ip?key={$key}&output=jsonp&callback=into";
+    $.ajax({
+        type: "get",
+        url: url,
+        dataType: "jsonp",
+        jsonp: "callback",
+        jsonpCallback: "into",
+    });
+
+    function into(res) {
+        console.log(res);
+        if (lat == '37.85778') {
+            lat = res.result.location.lat;
+            if (lng == '112.54841') {
+                lng = res.result.location.lng;
+                lating = new qq.maps.LatLng(lat, lng);
+                map.panTo(lating);
+            }
+        }
+    };
+
+    map.setOptions({
+        draggableCursor: "crosshair"
+    });
+
+    $("#map").mouseenter(function () {
+        label.setMap(map);
+    });
+    $("#map").mouseleave(function () {
+        label.setMap(null);
+    });
+    $("#qt").click(function () {
+        if ($("[name=address]").val() == "" || $("[name=address]").val() == null) return;
+        url = `https://apis.map.qq.com/ws/place/v1/search?keyword=` + $("[name=address]").val() + `&boundary=nearby(${lat},${lng},1000,1)&key={$key}&output=jsonp&callback=i`;
+        $.ajax({
+            type: "get",
+            async: false,
+            url: url,
+            dataType: "jsonp",
+            jsonp: "callback",
+            jsonpCallback: "i",
+        })
+    })
+
+    function i(res) {
+        $("[name=address_txt]").empty();
+        $("[name=address_txt]").append("<option value='' >查询成功</option>");
+        res.data.forEach((elem, index) => {
+            $("[name=address_txt]").append("<option value='" + elem.title + "' data_address='" + elem.address + "' data_lat='" + elem.location.lat + "' data_lng='" + elem.location.lng + "'>" + elem.title + "</option>");
+        });
+    }
+
+    //address
+
+    $("[name=address_txt]").on('change', function () {
+        $("[name=address]").val($(this).find("option:selected").attr("data_address"));
+        $("[name=lat]").val($(this).find("option:selected").attr("data_lat"));
+        $("[name=lng]").val($(this).find("option:selected").attr("data_lng"));
+    });
+
+    qq.maps.event.addListener(map, "mousemove", function (e) {
+        var latlng = e.latLng;
+        label.setPosition(latlng);
+        label.setContent(latlng.getLat().toFixed(6) + "," + latlng.getLng().toFixed(6));
+    })
+
+    qq.maps.event.addListener(map, 'click', function (event) {
+        var marker = new qq.maps.Marker({
+            position: event.latLng,
+            map: map
+        });
+        lat = event.latLng.getLat();
+        lng = event.latLng.getLng();
+        $("[name=lat]").val(lat);
+        $("[name=lng]").val(lng);
+        url = `https://apis.map.qq.com/ws/geocoder/v1/?location=${lat},${lng}&key={$key}&output=jsonp&callback=getlocation`;
+        $.ajax({
+            type: "get",
+            async: false,
+            url: url,
+            dataType: "jsonp",
+            jsonp: "callback",
+            jsonpCallback: "getlocation",
+        })
+        qq.maps.event.addListener(map, 'click', function (event) {
+            marker.setMap(null);
+        });
+    });
+
+    function getlocation(res) {
+        $("[name=address]").val(res.result.formatted_addresses.recommend)
+    }
+
+    //打印类型设置
+    $(".print-type [type=checkbox]").click(function () {
+        console.log($(this).prop("checked"));
+        $(this).parents(".input-group").find("input[type=text]").prop("disabled", !$(this).prop("checked"))
+    })
+</script>
+{/block}

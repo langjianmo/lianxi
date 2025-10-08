@@ -1,0 +1,197 @@
+{extend name="common/layout" /}
+{block name="content"}
+<div class="card card-primary card-outline card-outline-tabs">
+    <div class="card-header p-0 border-bottom-0">
+        <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
+            <li class="nav-item active">
+                <a class="nav-link" id="custom-tabs-three-profile-tab" data-toggle="pill"
+                   href="#custom-tabs-three-profile" role="tab" aria-controls="custom-tabs-three-profile"
+                   aria-selected="false">收入设置</a>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content" id="custom-tabs-three-tabContent">
+            <div class="tab-pane fade active show" id="custom-tabs-three-profile" role="tabpanel"
+                 aria-labelledby="custom-tabs-three-profile-tab">
+                <form class="form-horizontal" method="post" data-ajax="">
+                    <input type="hidden" name="type" value="shop_sales">
+                    <div class="card-body">
+                        <div class="form-group row">
+
+                            <label class="col-sm-2 col-form-label">最低价格</label>
+
+                            <div class="col-sm-10">
+
+                                <div class="input-group">
+
+                                    <input type="text" class="form-control" name="d_pr"
+                                           value="{$shop_sales.d_pr|default='0'}" autocomplete="off">
+
+                                </div>
+
+                                <div class="text text-danger text-sm">0为关闭，若有设置，优先级高于单个打印机设置，若无设置以单个打印机设置为准。</div>
+
+                            </div>
+
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">满减设置</label>
+                            <div class="col-10 col-sm-5">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">满</span>
+                                    </div>
+                                    <input type="text" class="form-control text-center" name="price"
+                                           value="{$shop_sales.price|default=''}" autocomplete="off">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">元打</span>
+                                    </div>
+                                    <input type="text" class="form-control text-center" name="discount"
+                                           value="{$shop_sales.discount|default=''}" autocomplete="off">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">折</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">扫码取件</label>
+                            <div class="col-sm-10 d-flex align-items-center">
+                                <div class="checkbox checkbox-primary form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="IsReserve" name="IsReserve" {if
+                                           $IsReserve !=0}checked{/if} value="1">
+                                    <label class="form-check-label" for="IsReserve">是否开启扫码取件</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-10">
+                                <button type="submit" class="btn btn-info">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.card -->
+</div>
+
+{/block}﻿
+{block name="footer"}
+{$upload|raw}
+<script>
+    jQuery(function () {
+        var $ = jQuery,
+            $list = $('#fileList'),
+            // 优化retina, 在retina下这个值是2
+            ratio = window.devicePixelRatio || 1,
+
+            // 缩略图大小
+            thumbnailWidth = 100 * ratio,
+            thumbnailHeight = 100 * ratio,
+
+            // Web Uploader实例
+            uploader;
+
+        // 初始化Web Uploader
+        uploader = WebUploader.create({
+            auto: true,
+            swf: "/static/admin/plugins/webuploader/Uploader.swf",
+            server: '/admin/upload/img',
+            pick: '#filePicker',
+            accept: {
+                title: 'Images',
+                extensions: 'gif,jpg,jpeg,bmp,png',
+                mimeTypes: 'image/*'
+            },
+            fileNumLimit: 1
+        });
+
+        // 当有文件添加进来的时候
+        uploader.on('fileQueued', function (file) {
+            var $li = $(
+                    '<div id="' + file.id + '" class="file-item thumbnail">' +
+                    '<img>' +
+                    '</div>'
+                ),
+                $img = $li.find('img');
+
+            $list.empty();
+            $list.append($li);
+
+            // 创建缩略图
+            uploader.makeThumb(file, function (error, src) {
+                if (error) {
+                    $img.replaceWith('<span>不能预览</span>');
+                    return;
+                }
+
+                $img.attr('src', src);
+            }, thumbnailWidth, thumbnailHeight);
+        });
+
+        // 文件上传过程中创建进度条实时显示。
+        uploader.on('uploadProgress', function (file, percentage) {
+            var $li = $('#' + file.id),
+                $percent = $li.find('.progress span');
+
+            // 避免重复创建
+            if (!$percent.length) {
+                $percent = $('<p class="progress"><span></span></p>')
+                    .appendTo($li)
+                    .find('span');
+            }
+
+            $percent.css('width', percentage * 100 + '%');
+        });
+
+        // 文件上传成功，给item添加成功class, 用样式标记上传成功。
+        uploader.on('uploadSuccess', function (file, res) {
+            $('#' + file.id).addClass('upload-state-done');
+            let filename = res.data.savename;
+            $("input[name=img]").val(filename)
+            console.log(filename)
+        });
+
+        // 文件上传失败，现实上传出错。
+        uploader.on('uploadError', function (file) {
+            var $li = $('#' + file.id),
+                $error = $li.find('div.error');
+
+            // 避免重复创建
+            if (!$error.length) {
+                $error = $('<div class="error"></div>').appendTo($li);
+            }
+
+            $error.text('上传失败');
+        });
+
+        // 完成上传完了，成功或者失败，先删除进度条。
+        uploader.on('uploadComplete', function (file) {
+            $('#' + file.id).find('.progress').remove();
+        });
+    });
+    //获取公众号菜单
+    $(".get-official-menu").click(function () {
+        $.get("{:url('updateOfficialMenu')}", res => {
+            let data = res.data;
+            $("[name=code]").val(data)
+        }, "JSON")
+    })
+    $(".update-official-menu").click(function () {
+        Swal.showLoading();
+        $.ajax({
+            method: "post",
+            dataType: "json",
+            url: "{:url('updateOfficialMenu')}",
+            contentType: "application/json",
+            data: $("[name=code]").val(),
+            success: function (res) {
+                Swal.alert(res.msg);
+            }
+        })
+    })
+</script>
+{/block}

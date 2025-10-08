@@ -1,0 +1,151 @@
+{extend name="common/layout" /}
+{block name="content"}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">修改密码</h3>
+    </div>
+    <div class="card-body">
+        <form class="form-horizontal" method="post" data-ajax="">
+            <div class="card-body">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">账号</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control disabled" disabled value="{$shop.account}"
+                               autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">密码</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="password" value="" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">提现方式</label>
+                    <div class="col-sm-5">
+                        <select name="CashOutType" class="my-select2">
+                            <option value="">请选择代理微信</option>
+                            <option value="1">微信</option>
+                            <option value="2">银行卡</option>
+                        </select>
+                    </div>
+                    {IF isset($IsAutoOut)}
+                    <div class="col-sm-5 d-flex align-items-center">
+                        <div class="checkbox checkbox-primary form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="AutoOut" name="AutoOut" {if
+                                   isset($AutoOut)}checked{/if} value="1">
+                            <label class="form-check-label" for="AutoOut">是否自动提现</label>
+                            <small style="margin-left: 20px">自动/手动提现皆为:<kbd>T+1模式</kbd></small>
+                        </div>
+                    </div>
+                    {/IF}
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">代理银行卡</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control disabled" disabled value="{$BankCard|default=''}"
+                               autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">绑定通知账户</label>
+                    <input type="hidden" name="notice_id" value="">
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" readonly name="openid" data-img="{$imgurl}"
+                               autocomplete="off" placeholder='点击绑定账户' value="{$openid}">
+                    </div>
+                    <div class="col-sm-2">
+                        <input id="wechatmsg" type="button" class="btn btn-info" value="消息测试">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="offset-sm-2 col-sm-10">
+                        <button type="submit" class="btn btn-info">保存</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{/block}
+{block name="footer"}
+{$select2|raw}
+<script>
+    $("[name=openid]").click(function () {
+        let _this = $(this);
+        let src = $(this).data("img");
+        console.log(src);
+        Swal.fire({
+            imageUrl: src,
+            title: "点击图片刷新二维码"
+        });
+        $(".swal2-image").click(function () {
+            var data = {
+                wxstate: "{$wxstate}",
+                proxy_id: {$notice_proxy_id},
+                shop_id: {$shop_id}
+            };
+            $.ajax({
+                url: "{:url('account/postbind')}",
+                data: data,
+                success: function (result) {
+                    _this.data("img", result.url + "?_={:time()}");
+                    _this.click();
+                    $("#img").attr('src', result.url);
+                }
+            });
+        });
+
+        let myVar = setInterval(function () {
+            var data = {
+                wxstate: "{$wxstate}",
+            };
+            $.ajax({
+                url: "{:url('account/queryOpenid')}",
+                data: data,
+                success: function (result) {
+                    if (result.code == 0) {
+                        $("[name=notice_id]").val(result.data.id);
+                        $("[name=openid]").val(result.data.openid);
+                        clearInterval(myVar);
+                        Swal.fire({
+                            title: "绑定成功",
+                            type: "info",
+                            timer: 2000
+                        });
+                    }
+                }
+            });
+        }, 1500);
+    });
+
+
+    $("#wechatmsg").click(function () {
+        if ($("[name=openid]").val() == '') return true;
+        $.ajax({
+            url: "{:url('account/sendNotice')}",
+            data: {
+                openid: $("[name=openid]").val()
+            }
+
+        });
+    });
+
+    $(".my-select2").select2({
+        width: 150,//组件宽度
+        theme: "bootstrap4",
+        placeholder: "请选择提现方式",
+        minimumResultsForSearch: -1,
+        allowClear: false,
+        data: [
+            {id: 1, text: "微信"},
+            {id: 2, text: "银行卡"}
+        ]
+    });
+    {
+        if !empty($CashOutType)}
+    $(".my-select2").select2('val', "{$CashOutType|default=''}")
+    {
+        /if}
+</script>
+{/block}

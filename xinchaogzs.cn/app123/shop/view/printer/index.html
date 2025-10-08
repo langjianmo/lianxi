@@ -1,0 +1,223 @@
+{extend name="common/layout" /}
+{block name="content"}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">打印机列表</h3>
+    </div>
+    <div class="card-body">
+        {empty name="lists"}
+        <div class="text-center text-gray">暂无打印机</div>
+        {else}
+        <div class="table-responsive">
+            <table class="table table-striped text-nowrap">
+                <tr>
+                    <th style="width: 10px">ID</th>
+                    <th>打印机SN</th>
+                    <th>打印机名称</th>
+                    <th>营业状态</th>
+                    <th>设备状态</th>
+                    <th>纸张</th>
+                    <th>额外模式</th>
+                    <th>纸张数量</th>
+                    <th>小程序码</th>
+                    <th>操作</th>
+                </tr>
+                {volist name="lists" id="vo"}
+                <tr>
+                    <td>{$vo.id}</td>
+                    <td>{$vo.sn}</td>
+                    <td>{$vo.name}</td>
+                    <td>
+                        {switch name="$vo.status"}
+                        {case value="1"}<span id="status_{$vo.id}" title="点击修改状态" style="cursor:pointer;"
+                                              onclick="upstatus({$vo.id})" class="badge badge-success">营业中</span>{/case}
+                        {case value="0"}<span id="status_{$vo.id}" title="点击修改状态" style="cursor:pointer;"
+                                              onclick="upstatus({$vo.id})" class="badge badge-danger">停业中</span>{/case}
+                        {/switch}
+                    </td>
+                    <td>
+                        <span id="device_status_{$vo.id}" style="cursor:pointer;" title="点击刷新设备信息"
+                              onclick="refresh({$vo.id})" class="badge badge-info">查询中</span>
+                        <!--<a href="{:url('refresh',['id'=>$vo.id])}" data-ajax="" class="btn btn-info btn-xs">刷新设备</a>-->
+                    </td>
+                    <td>
+                        {if isset($vo.functions.A3)}<span class="badge badge-warning">A3</span> {/if}
+                        {if isset($vo.functions.A4)}<span class="badge badge-warning">A4</span> {/if}
+                        {if isset($vo.functions.C6)}<span class="badge badge-warning">照片</span> {/if}
+                    </td>
+                    <td>
+                        {if isset($vo.functions.double_side)}<span class="badge badge-danger">双面</span> {/if}
+                        {if isset($vo.functions.black_white)}<span class="badge badge-danger">黑白</span> {/if}
+                        {if isset($vo.functions.colorful)}<span class="badge badge-danger">彩色</span> {/if}
+                    </td>
+                    <td>
+                        {if isset($vo.functions.A3)} <span class="badge badge-primary">A3:{$vo.page_a3}</span> {/if}
+                        {if isset($vo.functions.A4)} <span class="badge badge-primary">A4:{$vo.page_a4}</span> {/if}
+                        {if isset($vo.functions.C6)} <span class="badge badge-primary">C6:{$vo.page_photo}</span> {/if}
+                    </td>
+                    <td>
+                        <span style="cursor:pointer;" data-printer-id="{$vo.id}"
+                              data-img="{:getMiniQrcode('printer_id:'.$vo.id,'pages/index/index')}"
+                              class="badge badge-success show-qrcode">点击查看</span>
+                    </td>
+                    <td>
+                        <a href="{:url('add',['id'=>$vo.id])}" class="btn btn-primary btn-xs">修改</a>
+                        <a href="{:url('price',['id'=>$vo.id])}" class="btn btn-primary btn-xs">打印价格设置</a>
+                        <a href="{:url('clearSending',['id'=>$vo.id])}" data-ajax="此操作会清空队列中的文件,确定要操作吗?"
+                           class="btn btn-success btn-xs">清空打印队列</a>
+                        <a href="{:url('papers',['id'=>$vo.id])}" class="btn btn-success btn-xs">打印参数设置</a>
+                    </td>
+                </tr>
+                {/volist}
+            </table>
+        </div>
+        {/empty}
+    </div>
+</div>
+{/block}
+{block name="footer"}
+<script>
+    data = {
+        key: $("[name='key']").val()
+    };
+    let online_text = ["离线", "在线", "未连接", "未营业"];
+    $.ajax({
+        url: "{:url('status',['page'=>$page])}",
+        type: "POST",
+        data: data,
+        success: res => {
+            console.log(typeof res);
+            for (i in res) {
+                let text = "在线";
+                $('#device_status_' + res[i].id).removeClass('badge-info');
+                if (typeof res[i].PrinterList !== "undefined") {
+                    text = online_text[res[i]["online"]];
+                    if (res[i]["online"] == 0) {
+                        $('#device_status_' + res[i].id).addClass('badge-danger');
+                    }
+                    if (res[i]["online"] == 1) {
+                        $('#device_status_' + res[i].id).addClass('badge-success');
+                    }
+                    if (res[i]["online"] == 3) {
+                        $('#device_status_' + res[i].id).addClass('badge-warning');
+                    }
+                } else {
+                    text = online_text[2];
+                    $('#device_status_' + res[i].id).addClass('badge-danger');
+                }
+                $('#device_status_' + res[i].id).html(text);
+            }
+        }
+    });
+
+    function refresh(e) {
+        $.ajax({
+            url: "{:url('refresh')}",
+            type: "POST",
+            data: {
+                id : e
+            },
+            success: res => {
+                var online_text = ["离线", "在线", "未连接", "未营业"];
+                var text = "在线";
+                if (res.code >= 0) {
+                    $('#device_status_' + res.id).removeClass('badge-info');
+                    $('#device_status_' + res.id).removeClass('badge-danger');
+                    $('#device_status_' + res.id).removeClass('badge-success');
+                    $('#device_status_' + res.id).removeClass('badge-warning');
+                    console.log(typeof res.id )
+                    if (typeof res.id !== "undefined") {
+                        text = online_text[res.online];
+                        if (res.online == 0) {
+                            $('#device_status_' + res.id).addClass('badge-danger');
+                        }
+                        if (res.online == 1) {
+                            $('#device_status_' + res.id).addClass('badge-success');
+                        }
+                        if (res.online == 3) {
+                            $('#device_status_' + res.id).addClass('badge-warning');
+                        }
+                    } else {
+                        text = online_text[2];
+                        $('#device_status_' + res.id).addClass('badge-danger');
+                    }
+                    $('#device_status_' + res.id).html(text)
+
+                    if (res.online == 0 || res.code == 1) {
+                        Swal.fire({
+                            type: "error",
+                            title: res.msg
+                        });
+                    } else {
+                        Swal.fire({
+                            type: "success",
+                            title: res.msg
+                        });
+                    }
+                } else {
+                    Swal.fire({
+                        type: "error",
+                        title: res.msg
+                    });
+                }
+            }
+        });
+    }
+
+    function upstatus(e) {
+        console.log(e);
+
+        let obj_id = e;
+        let data = {
+            id: obj_id
+        };
+        $.ajax({
+            url: "{:url('upstatus')}",
+            type: "POST",
+            data: data,
+            success: res => {
+                if (res.code == 0) {
+                    if (res.status == 1) {
+                        $('#status_' + obj_id).html('营业中');
+                        $('#status_' + obj_id).removeClass('badge-danger');
+                        $('#status_' + obj_id).addClass('badge-success');
+                    }
+                    if (res.status == 0) {
+                        $('#status_' + obj_id).html('停业中');
+                        $('#status_' + obj_id).removeClass('badge-success');
+                        $('#status_' + obj_id).addClass('badge-danger');
+                    }
+                    Swal.fire({
+                        type: "success",
+                        title: "修改成功！"
+                    });
+                } else {
+                    Swal.fire({
+                        type: "error",
+                        title: "修改失败！"
+                    });
+                }
+            }
+        });
+    }
+
+    $(".show-qrcode").click(function () {
+        let _this = $(this);
+        let src = $(this).data("img");
+        let printer_id = $(this).data("printer-id");
+        console.log(src, printer_id)
+        Swal.fire({
+            imageUrl: src,
+            title: "点击图片刷新二维码"
+        });
+        $(".swal2-image").click(function () {
+            $.get("{:url('refreshQrcode')}", {
+                printer_id: printer_id
+            }, res => {
+                _this.data("img", res.data.url + "?_={:time()}");
+                _this.click();
+            }, "JSON")
+        })
+    })
+</script>
+{/block}

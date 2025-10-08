@@ -1,0 +1,52 @@
+{extend name="common/layout" /}
+{block name="content"}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">轮播图</h3>
+        <div class="card-tools">
+            <a href="{:url('add')}" class="btn btn-primary">添加</a>
+        </div>
+    </div>
+    <div class="card-body">
+        {empty name="lists"}
+        <div class="text-center text-gray">暂无图片</div>
+        {else}
+        <div class="table-responsive">
+            <form action="{:url('sort')}" method="post" data-ajax="">
+                <table class="table table-striped text-nowrap text-center">
+                    <tr>
+                        <th width="50">ID</th>
+                        <th width="100">排序</th>
+                        <th>图片</th>
+                        <th>链接</th>
+                        <th>操作</th>
+                    </tr>
+                    {volist name="lists" id="vo"}
+                    <tr>
+                        <td>{$vo.id}</td>
+                        <td><input type="text" class="form-control text-center" name="sort[{$vo.id}]"
+                                   value="{$vo.sort}"></td>
+                        <td><img src="{$vo.img}" width="50" alt=""></td>
+                        <td>{$vo.link}</td>
+                        <td>
+                            <a href="{:url('add',['id'=>$vo.id])}" class="btn btn-primary">编辑</a>
+                            <a href="{:url('delete',['id'=>$vo.id])}" data-ajax="确定要删除吗?" class="btn btn-danger">删除</a>
+                        </td>
+                    </tr>
+                    {/volist}
+                    <tr>
+                        <td></td>
+                        <td colspan="7" class="text-left">
+                            <button class="btn btn-primary" type="submit" data-toggle="tooltip" title="数字越大越靠前显示">排序
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        {/empty}
+    </div>
+</div>
+{/block}﻿
+{block name="footer"}
+{/block}

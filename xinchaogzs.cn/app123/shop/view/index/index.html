@@ -1,0 +1,220 @@
+{extend name="common/layout" /}
+{block name="content"}
+<div class="row">
+    <div class="col-12 col-sm-6 col-md-6">
+        <div class="info-box">
+            <span class="info-box-icon bg-success elevation-1"><i class="fa fa-money-check-alt"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">账户余额</span>
+                <span class="info-box-number">{:bcdiv($commission,100,2)} <a href="javascript:;"
+                                                                             class="btn btn-primary btn-xs cash-out">提现</a></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-6">
+        <div class="info-box">
+            <span class="info-box-icon bg-danger elevation-1"><i class="fa fa-wallet"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">本月收入</span>
+                <span class="info-box-number">{:bcdiv($month,100,2)}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-info elevation-1"><i class="fa fa-yen-sign"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">今日收入</span>
+                <span class="info-box-number">{:bcdiv($today,100,2)}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-primary elevation-1"><i class="fa fa-search-dollar"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">本周收入</span>
+                <span class="info-box-number">{:bcdiv($week,100,2)}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-primary elevation-1"><i class="fa fa-search-dollar"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">本周退款</span>
+                <span class="info-box-number">{:bcdiv($refund_week,100,2)}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-danger elevation-1"><i class="fa fa-wallet"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">本月退款</span>
+                <span class="info-box-number">{:bcdiv($refund_month,100,2)}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-warning elevation-1"><i class="fa fa-book"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">剩余A3纸</span>
+                <span class="info-box-number">{$page.a3}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-warning elevation-1"><i class="fa fa-book"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">剩余A4纸</span>
+                <span class="info-box-number">{$page.a4}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-warning elevation-1"><i class="fa fa-book"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">剩余照片纸</span>
+                <span class="info-box-number">{$page.photo}</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">营收统计</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header border-transparent">
+                <h5 class="card-title">提现记录</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table m-0">
+                        <tr>
+                            <th>ID</th>
+                            <th>提现金额</th>
+                            <th>提现时间</th>
+                            <th>状态</th>
+                        </tr>
+                        {empty name="cash_out"}
+                        <tr>
+                            <td colspan="4" class="text-center">暂无数据</td>
+                        </tr>
+                        {else}
+                        {volist name="$cash_out" id="vo"}
+                        <tr>
+                            <td>{$vo.id}</td>
+                            <td>{:bcdiv($vo.price,100,2)}</td>
+                            <td>{:date('Y-m-d H:i:s',$vo.inserttime)}</td>
+                            <td>
+                                {if $vo.status==0}
+                                <span class="badge badge-danger">提现失败</span>
+                                {else}
+                                <span class="badge badge-success">提现成功</span>
+                                {/if}
+                            </td>
+                        </tr>
+                        {/volist}
+                        {/empty}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="footer"}
+{$chart_js|raw}
+<script>
+    let raw_data = {$all | raw
+    }
+    ;
+    let data = [];
+    let xLabel = [];
+    raw_data.forEach(item => {
+        xLabel.push(item.inserttime);
+        data.push(item.commission);
+    })
+    var config = {
+        type: 'line',
+        data: {
+            labels: xLabel,
+            datasets: [
+                {
+                    label: '收益统计',
+                    borderColor: "#0044f0",
+                    data: data,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: '时间'
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: '收益'
+                    }
+                }]
+            }
+        }
+    };
+    console.log(config.data);
+    let ctx = document.getElementById('canvas').getContext('2d');
+    let line = new Chart(ctx, config);
+
+    //提现
+    $(".cash-out").click(function () {
+        Swal.fire({
+            title: "确定要提现吗?",
+            showCancelButton: true,
+            cancelButtonText: "取消",
+            confirmButtonText: "确定"
+        }).then(res => {
+            //TODO loading
+            if (res.value) {
+                $.get("{:url('cashOut')}", res => {
+                    Swal.fire({
+                        title: "提示",
+                        text: res.msg,
+                    }).then(res => {
+                        window.location.href = "{:url('',['_t'=>time()])}";
+                    })
+                }, "JSON")
+            }
+        })
+    })
+</script>
+{/block}
