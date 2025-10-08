@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{$msg}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="__PLUGINS__/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="__CSS__/adminlte.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+</head>
+<body class="hold-transition lockscreen">
+<div class="lockscreen-wrapper">
+    {if $type=="success"}
+    <div class="text-center text-success">
+        <i class="fas fa-smile fa-6x"></i>
+    </div>
+    {/if}
+    {if $type=="error"}
+    <div class="text-center text-danger">
+        <i class="fas fa-sad-cry fa-6x"></i>
+    </div>
+    {/if}
+    <div class="lockscreen-logo pt-lg-5">{$msg}</div>
+    <div class="text-center">
+        <a href="{$url}"><span class="timeout"></span>后自动跳转</a>
+    </div>
+</div>
+<script src="__PLUGINS__/jquery/jquery.min.js"></script>
+<script src="__PLUGINS__/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+    let timeout = "{$timeout}";
+    let url = "{$url}";
+    setInterval(_ => {
+        timeout--;
+        $(".timeout").text(timeout);
+        if (timeout <= 0) {
+            window.location.href = url;
+        }
+    }, 1000)
+</script>
+</body>
+</html>

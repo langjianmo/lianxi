@@ -1,0 +1,96 @@
+{extend name="common/layout" /}
+{block name="content"}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">订单列表</h3>
+    </div>
+    <div class="card-body">
+        <form action="" method="post">
+            <div class="row pb-2">
+                <div class="col-4">
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label text-right text-nowrap">订单号</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="out_trade_no"
+                                   value="{$search.out_trade_no|default=''}" placeholder="请输入内部订单号" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <button type="submit" class="btn btn-primary">搜索</button>
+                    <a href="{:url()}" class="btn btn-success">显示全部</a>
+                </div>
+            </div>
+        </form>
+        {empty name="lists"}
+        <div class="text-center text-gray">暂无订单</div>
+        {else}
+        <div class="table-responsive">
+            <table class="table table-striped text-nowrap table-sm text-sm">
+                <tr>
+                    <th style="width: 10px">ID</th>
+                    <th>平台</th>
+                    <th>昵称</th>
+                    <th>订单号</th>
+                    <th>退款原因</th>
+                    <th>支付金额</th>
+                    <th>下单时间</th>
+                    <th>退款状态</th>
+                    <th>操作</th>
+                    <th>详情</th>
+                </tr>
+                {volist name="lists" id="vo"}
+                <tr>
+                    <td>{$vo.id}</td>
+                    <td>
+                        {switch name="$vo.platform"}
+                        {case value="1"}微信{/case}
+                        {case value="2"}QQ{/case}
+                        {case value="3"}支付宝{/case}
+                        {case value="4"}字节{/case}
+                        {case value="5"}百度{/case}
+                        {/switch}
+                    </td>
+                    <td>{$vo.nickname}</td>
+                    <td>{$vo.out_trade_no}</td>
+                    <th>{$vo.out_refund_msg}</th>
+                    <td>{$vo.total_fee|bcdiv=###,100,2}</td>
+                    <td>{$vo.inserttime|date="Y-m-d H:i:s"}</td>
+                    <td>
+                        {switch name="$vo.out_refund_status"}
+                        {case value="1"}<span class="badge badge-primary">待审核</span>{/case}
+                        {case value="2"}<span class="badge badge-primary">已驳回</span>{/case}
+                        {case value="3"}<span class="badge badge-primary">退款完成</span>{/case}
+                        {case value="4"}<span class="badge badge-primary">退款异常</span>{/case}
+                        {case value="5"}<span class="badge badge-primary">退款中</span>{/case}
+                        {/switch}
+                    </td>
+                    <td>
+                        {if $vo.out_refund_status == 1}
+                        <a href="{:url('index',['id'=>$vo.id,'type'=>2])}" data-ajax="确定同意退款申请?"
+                           class="btn btn-primary btn-xs">同意</a>
+
+                        <a href="{:url('index',['id'=>$vo.id,'type'=>3])}" data-ajax="确定驳回退款申请?"
+                           class="btn btn-primary btn-xs">驳回</a>
+                        {/if}
+                        {if $vo.out_refund_status > 3 && $vo.out_refund_status != 6}
+                        <a href="{:url('index',['id'=>$vo.id,'type'=>2])}" data-ajax="是否重试退款?"
+                           class="btn btn-primary btn-xs">重试</a>
+                        <a href="{:url('index',['id'=>$vo.id,'type'=>4])}" data-ajax="是否已人工处理?"
+                           class="btn btn-primary btn-xs">忽略</a>
+                        {/if}
+                    </td>
+                    <td>
+                        <a href="{:url('detail',['id'=>$vo.id])}" class="btn btn-primary btn-xs">查看详情</a>
+                    </td>
+                </tr>
+                {/volist}
+            </table>
+        </div>
+        {$pages|raw}
+        {/empty}
+    </div>
+</div>
+{/block}﻿
+{block name="footer"}
+{/block}

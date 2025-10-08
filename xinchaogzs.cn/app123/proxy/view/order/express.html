@@ -1,0 +1,47 @@
+{extend name="common/layout" /}
+{block name="content"}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">发货</h3>
+    </div>
+    <div class="card-body">
+        <form class="form-horizontal" method="post" data-ajax="">
+            <input type="hidden" name="id" value="{$id}">
+            <div class="card-body">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">商品名称</label>
+                    <div class="col-sm-10">{$goods_name}</div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">收货信息</label>
+                    <div class="col-sm-10">{$name} {$phone} {$address}</div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">快递信息</label>
+                    <div class="col-sm-10 row">
+                        <div class="col-3">
+                            <input type="text" name="express" value="{$express}" class="form-control"
+                                   placeholder="快递公司">
+                        </div>
+                        <div class="col-3">
+                            <input type="text" name="express_number" value="{$express_number}" class="form-control"
+                                   placeholder="快递单号">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="offset-sm-2 col-sm-10">
+                        <button type="submit" class="btn btn-info">保存</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{/block}﻿
+{block name="footer"}
+<script>
+
+</script>
+{/block}

@@ -1,0 +1,378 @@
+{extend name="common/layout" /}
+{block name="header"}
+<style>
+    #map {
+        height: 600px;
+    }
+</style>
+{/block}
+{block name="content"}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">编辑店铺</h3>
+        <div class="card-tools">
+            <a href="javascript:history.go(-1)">返回</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <form class="form-horizontal" method="post" data-ajax="" enctype="multipart/form-data">
+            <input type="hidden" name="id" value="{$id|default=''}">
+            <div class="card-body">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">店主微信</label>
+                    <div class="col-sm-10">
+                        <select name="uid" class="my-select2">
+                            {if isset($uid)}
+                            <option value="{$uid}">{$nickname}</option>
+                            {/if}
+                            <option value="">请选择店主微信</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">店主姓名</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="name" value="{$name|default=''}"
+                               autocomplete="off">
+                        <small><small style="color: #dc3545!important;font-size:16px">*</small>必须填写真实微信实名认证姓名,否则用户将<kbd>无法提现</kbd></small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">店主手机号</label>
+                    <div class="col-sm-10">
+                        <input type="tel" class="form-control" name="phone" value="{$phone|default=''}"
+                               autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">店主银行卡</label>
+                    <div class="col-sm-10">
+                        {IF isset($BankCard)}
+                        <input type="text" class="form-control disabled" disabled value="{$BankCard|default=''}"
+                               autocomplete="off">
+                        {else}
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <input type="text" class="form-control col-sm-6" id="BankCard" name="BankCard" value=""
+                                       autocomplete="off">
+                                <input type="text" class="form-control col-sm-3 disabled" disabled id="BankCard_info"
+                                       value="" autocomplete="off">
+                                <input type="hidden" id="BankCard_info_ls">
+                                <input type="text" class="form-control col-sm-3 disabled" disabled id="BankCard_type"
+                                       value="" autocomplete="off">
+                                <input type="hidden" id="BankCord" name="BankCord">
+                            </div>
+                        </div>
+                        <small><small style="color: #dc3545!important;font-size:16px">*</small>必须填写微信实名认证姓名<kbd>名下</kbd>银行卡,绑定后将<kbd>无法修改</kbd></small>
+                        {/IF}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">店铺名称</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="shop_name" value="{$shop_name|default=''}"
+                               autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">店铺介绍</label>
+                    <div class="col-sm-10">
+                        <textarea name="description" class="form-control" style="height: 100px;" cols="30" rows="10">{$description|default=''}</textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">店铺分成</label>
+                    <div class="col-sm-5">
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">租用</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" name="commission_rent" min="0" max="100"
+                                           value="{$commission_rent|default='0'}" autocomplete="off">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                                <div class="text text-danger text-sm">代理提成后的订单金额百分比</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">出售</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" name="commission_sell" min="0" max="100"
+                                           value="{$commission_sell|default='0'}" autocomplete="off">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                                <div class="text text-danger text-sm">代理提成后的订单金额百分比</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">提现设置</label>
+                    <div class="col-sm-10 d-flex align-items-center">
+                        <div class="checkbox checkbox-primary form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="IsAutoOut" name="IsAutoOut" {if
+                                   isset($IsAutoOut)}checked{/if} value="1">
+                            <label class="form-check-label" for="IsAutoOut">是否允许自动提现</label>
+                            <small style="margin-left: 20px">自动/手动提现皆为:<kbd>T+1模式</kbd></small>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">扫码取件</label>
+                    <div class="col-sm-10 d-flex align-items-center">
+                        <div class="checkbox checkbox-primary form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="IsReserve" name="IsReserve" {if
+                                   isset($IsAutoOut)}checked{/if} value="1">
+                            <label class="form-check-label" for="IsReserve">是否开启扫码取件</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">店铺地址</label>
+                    <div class="col-sm-10">
+                        <div class="input-group">
+                            <span class="input-group-text">地址</span>
+                            <select name="address_txt" class="col-sm-4 form-control">
+                            </select>
+                            <input type="text" class="form-control" name="address" value="{$shop_name|default=''}"
+                                   autocomplete="off">
+                            <div id="qt" class="btn btn-info">查询</div>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text">坐标lat</span>
+                            <input type="text" class="form-control" name="lat" value="{$lat|default=''}">
+                            <span class="input-group-text">坐标lng</span>
+                            <input type="text" class="form-control" name="lng" value="{$lng|default=''}">
+                        </div>
+                        <div id="map" style="margin-top: 10px;"></div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">登录账号</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="account" value="{$account|default=''}"
+                               autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">登录密码</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="password" value="{$password|default=''}"
+                               autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="offset-sm-2 col-sm-10">
+                        <button type="submit" class="btn btn-info">保存</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{/block}
+{block name="footer"}
+<script charset="utf-8" src="https://map.qq.com/api/js?v=2.exp&key={$key}&libraries=place"></script>
+<script src="__JS__/bankcardinfo.js?_={:time()}"></script>
+{$upload|raw}
+{$select2|raw}
+<script>
+
+    var lat = {$lat |
+    default
+    = '37.85778'
+    }
+    ;
+    var lng = {$lng |
+    default
+    = '112.54841'
+    }
+    ;
+    var myLatlng = new qq.maps.LatLng(lat, lng);
+    var myOptions = {
+        zoom: 14,               //设置地图缩放级别
+        center: myLatlng,      //设置中心点样式
+        mapTypeId: qq.maps.MapTypeId.ROADMAP,  //设置地图样式详情参见MapType
+    }
+    var map = new qq.maps.Map($("#map").get(0), myOptions);
+    let label = new qq.maps.Label({
+        map: map,
+        offset: new qq.maps.Size(15, -12),
+        draggable: false,
+        clickable: false
+    });
+    //2d7cadd6-1bd0-4fb0-8511-d8042cd4e7c3.png
+    if (lat != '37.85778' && lng != '112.54841') {
+        new qq.maps.Marker({
+            position: new qq.maps.LatLng(lat, lng),
+            map: map
+        });
+    }
+
+    url = "https://apis.map.qq.com/ws/location/v1/ip?key={$key}&output=jsonp&callback=into";
+    $.ajax({
+        type: "get",
+        url: url,
+        dataType: "jsonp",
+        jsonp: "callback",
+        jsonpCallback: "into",
+    });
+
+    function into(res) {
+        console.log(res);
+        if (lat == '37.85778') {
+            lat = res.result.location.lat;
+            if (lng == '112.54841') {
+                lng = res.result.location.lng;
+                lating = new qq.maps.LatLng(lat, lng);
+                map.panTo(lating);
+            }
+        }
+    };
+
+    map.setOptions({
+        draggableCursor: "crosshair"
+    });
+
+    $("#map").mouseenter(function () {
+        label.setMap(map);
+    });
+    $("#map").mouseleave(function () {
+        label.setMap(null);
+    });
+    $("#qt").click(function () {
+        if ($("[name=address]").val() == "" || $("[name=address]").val() == null) return;
+        url = `https://apis.map.qq.com/ws/place/v1/search?keyword=` + $("[name=address]").val() + `&boundary=nearby(${lat},${lng},1000,1)&key={$key}&output=jsonp&callback=i`;
+        $.ajax({
+            type: "get",
+            async: false,
+            url: url,
+            dataType: "jsonp",
+            jsonp: "callback",
+            jsonpCallback: "i",
+        })
+    })
+
+    function i(res) {
+        if (res.status == 0) {
+            $("[name=address_txt]").empty();
+            $("[name=address_txt]").append("<option value='' >查询成功</option>");
+            res.data.forEach((elem, index) => {
+                $("[name=address_txt]").append("<option value='" + elem.title + "' data_address='" + elem.address + "' data_lat='" + elem.location.lat + "' data_lng='" + elem.location.lng + "'>" + elem.title + "</option>");
+            });
+        } else {
+            $("[name=address]").val(res.message)
+        }
+
+    }
+
+    //address
+
+    $("[name=address_txt]").on('change', function () {
+        $("[name=address]").val($(this).find("option:selected").attr("data_address"));
+        $("[name=lat]").val($(this).find("option:selected").attr("data_lat"));
+        $("[name=lng]").val($(this).find("option:selected").attr("data_lng"));
+    });
+
+    qq.maps.event.addListener(map, "mousemove", function (e) {
+        var latlng = e.latLng;
+        label.setPosition(latlng);
+        label.setContent(latlng.getLat().toFixed(6) + "," + latlng.getLng().toFixed(6));
+    })
+
+    qq.maps.event.addListener(map, 'click', function (event) {
+        var marker = new qq.maps.Marker({
+            position: event.latLng,
+            map: map
+        });
+        lat = event.latLng.getLat();
+        lng = event.latLng.getLng();
+        $("[name=lat]").val(lat);
+        $("[name=lng]").val(lng);
+        url = `https://apis.map.qq.com/ws/geocoder/v1/?location=${lat},${lng}&key={$key}&output=jsonp&callback=getlocation`;
+        $.ajax({
+            type: "get",
+            async: false,
+            url: url,
+            dataType: "jsonp",
+            jsonp: "callback",
+            jsonpCallback: "getlocation",
+        })
+        qq.maps.event.addListener(map, 'click', function (event) {
+            marker.setMap(null);
+        });
+    });
+
+    function getlocation(res) {
+        $("[name=address]").val(res.result.formatted_addresses.recommend)
+    }
+
+    $(".my-select2").select2({
+        width: 150,//组件宽度
+        theme: "bootstrap4",
+        placeholder: "请选择微信用户",
+        allowClear: true,
+        ajax: {
+            url: "{:url('miniUser/users')}",
+            dataType: "json",
+            data: function (params) {
+                let query = {
+                    nickname: params.term,
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data,
+                    pagination: {
+                        more: data.length >= 100
+                    }
+                };
+            }
+        }
+    });
+
+    {IF !isset($BankCard)}
+    $("#BankCard").bind('input propertychange', function () {
+        console.log($("#BankCard").val());
+        getBankBin($("#BankCard").val(), function (err, data) {
+            if (err != null) {
+                $("#BankCard_info").val("");
+                $("#BankCard_type").val("");
+                return;
+            }
+            if (typeof data !== undefined) {
+                $("#BankCard_info").val(data['bankName'] + data['cardTypeName']);
+                if ($("#BankCard_info_ls").val() != $("#BankCard_info").val()) {
+                    $("#BankCard_info_ls").val(data['bankName'] + data['cardTypeName']);
+                    $.ajax({
+                        url: '{:url("getBankCode")}',
+                        type: "POST",
+                        data: {BankName: data['bankWxName'] ?? data['bankName']},
+                        success: res => {
+                            console.log(res);
+                            if (res.code == 0) {
+                                $("#BankCard_type").val("银行编码：" + res.BankCode);
+                                $("#BankCord").val(res.BankCode);
+                            } else {
+                                $("#BankCard_type").val(res.BankCode);
+                            }
+                        }
+                    });
+                }
+            } else {
+                $("#BankCard_info").val("");
+                $("#BankCard_type").val("");
+            }
+        })
+    });
+    {/IF}
+</script>
+{/block}

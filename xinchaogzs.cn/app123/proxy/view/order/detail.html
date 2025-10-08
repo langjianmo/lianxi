@@ -1,0 +1,248 @@
+{extend name="common/layout" /}
+{block name="content"}
+{IF isset($shop)}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">店铺详情</h3>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>店铺名称</th>
+                <th>店主姓名</th>
+                <th>店主手机号</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{$shop.shop_name??""}</td>
+                <td>{$shop.name??""}</td>
+                <td>{$shop.phone??""}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{/IF}
+{IF isset($printer)}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">打印机详情</h3>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>编号</th>
+                <th>USB端口</th>
+                <th>名称</th>
+                <th>租用类型</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{$printer.device_id}</td>
+                <td>USB_{$printer.device_port}</td>
+                <td>{$printer.name}</td>
+                <td>{$printer.type==1?"租用":"出售"}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{/IF}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">订单详情</h3>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>订单号</th>
+                <th>支付金额</th>
+                <th>商家佣金</th>
+                <th>下单时间</th>
+                <th>订单状态</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{$order.out_trade_no}</td>
+                <td>{$order.total_fee|bcdiv=###,100,2}</td>
+                <td>{$order.commission|bcdiv=###,100,2}</td>
+                <td>{$order.inserttime|date='Y-m-d H:i:s'}</td>
+                <td>{$order.status==0?"未支付":"已支付"}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{IF !empty($printer_list)}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">打印文件</h3>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>文件名</th>
+                <th>打印页数</th>
+                <th>打印份数</th>
+                <th>打印时间</th>
+                <th>打印状态</th>
+                <th>打印类型</th>
+                <th>手动打印</th>
+            </tr>
+            </thead>
+            <tbody>
+            {volist name="printer_list" id="vo"}
+            <tr>
+                <td>{$vo.filename}</td>
+                <td>{$vo.page_end-$vo.page_start+1}</td>
+                <td>{$vo.copies}</td>
+                <td>{$vo.inserttime|date='Y-m-d H:i:s'}</td>
+                <td>
+                    {switch name="$vo.print_status"}
+                    {case value="0"}未打印{/case}
+                    {case value="1"}待打印{/case}
+                    {case value="2"}打印完成{/case}
+                    {case value="3"}正在发送{/case}
+                    {case value="4"}解析中{/case}
+                    {case value="5"}排队中{/case}
+                    {case value="6"}打印失败{/case}
+                    {case value="7"}标记撤回{/case}
+                    {case value="8"}撤回成功{/case}
+                    {/switch}
+                </td>
+                <td>
+                    {switch name="$vo.print_type"}
+                    {case value="1"}普通文档 黑白单面{/case}
+                    {case value="2"}普通文档 黑白双面{/case}
+                    {case value="3"}普通文档 彩色单面{/case}
+                    {case value="4"}普通文档 彩色双面{/case}
+                    {case value="5"}拍照复印 黑白单面{/case}
+                    {case value="6"}拍照复印 黑白双面{/case}
+                    {case value="7"}拍照复印 彩色单面{/case}
+                    {case value="8"}拍照复印 彩色双面{/case}
+                    {case value="9"}身份证复印 黑白单面{/case}
+                    {case value="10"}身份证复印 彩色单面{/case}
+                    {case value="11"}相片打印{/case}
+                    {case value="12"}证件照料打印{/case}
+                    {/switch}
+                </td>
+                <td>
+                    <a href="{:url('detail',['id'=>$order.id,'pid'=>$vo.id,'type'=>1])}" data-ajax="确定重新打印?"
+                       class="btn btn-primary btn-xs">打印</a>
+                    <a href="{$vo.file}" target="_blank"
+                       class="btn btn-primary btn-xs">预览</a>
+                </td>
+            </tr>
+            {/volist}
+            </tbody>
+        </table>
+    </div>
+</div>
+{/IF}
+{IF !empty($photo)}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">合成照片</h3>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>照片类型</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {volist name="photo" id="vo"}
+            <tr>
+                <td>
+                    {switch name="$vo.s_name"}
+                    {case value="c1"}一寸照片{/case}
+                    {case value="c1x"}小一寸照片{/case}
+                    {case value="c2"}二寸照片{/case}
+                    {case value="c2x"}小二寸照片{/case}
+                    {/switch}
+                </td>
+                <td>
+                    <a href="{$vo.file_print}" target="_blank"
+                       class="btn btn-primary btn-xs">预览</a>
+                </td>
+            </tr>
+            {/volist}
+            </tbody>
+        </table>
+    </div>
+</div>
+{/IF}
+
+
+<style type="text/css">
+    #zzc {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 1);
+        z-index: 15000;
+        dispaly: none;
+    }
+
+    #zzc h2 {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -15px;
+        margin-left: -15px;
+        color: #FFFFFF;
+    }
+</style>
+<div id="zzc">
+    <h2 id="msg">加载中</h2>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $("#zzc").hide();
+    {if $sddy.code}
+    $("#zzc").show();
+    var int = self.setInterval("get_dyst()", 5000);
+    var i = 0;
+
+    function get_dyst() {
+        $.post("{:url('cx_dy',['id'=>$sddy.pid,'task_id'=>$sddy.task_id])}", {}, function (result) {
+            let task_state = {
+                READY: "排队中",
+                PARSING: "解析中",
+                SENDING: "发送中",
+                SUCCESS: "打印成功",
+                FAILURE: "失败",
+                SET_REVOKE: "标记为撤回",
+                REVOKED: "撤回成功",
+            };
+            if (result.data.task_state == "SUCCESS") {
+                $("#msg").html(task_state[result.data.task_state]);
+                window.clearInterval(int);
+                window.location.replace('{:url("detail",["id"=>$order.id])}');
+            } else {
+                if (i >= 3) {
+                    window.clearInterval(int);
+                    window.location.replace('{:url("detail",["id"=>$order.id])}');
+                }
+                i = i + 1;
+                $("#msg").html(task_state[result.data.task_state]);
+            }
+        });
+    }
+
+    {/if}
+</script>
+{/block}
+{block name="footer"}
+{/block}

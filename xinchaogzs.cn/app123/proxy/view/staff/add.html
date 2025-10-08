@@ -1,0 +1,178 @@
+{extend name="common/layout" /}
+{block name="content"}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">员工信息</h3>
+    </div>
+    <div class="card-body">
+        <form class="form-horizontal" method="post" data-ajax="">
+            <div class="card-body">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">选择平台</label>
+                    <div class="col-sm-10">
+                        <select id="shop_type" name="platform" class="my-select2" required>
+                            <option value="">选择平台</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">选择用户</label>
+                    <div class="col-sm-10">
+                        <select id="shop_id" name="id" class="my-select2" required>
+                            <option value="">选择用户</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">绑定通知账户</label>
+                    <input type="hidden" name="notice_id" value="">
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" readonly name="openid" data-img="{$imgurl}"
+                               autocomplete="off" placeholder='点击绑定账户'>
+                    </div>
+                    <div class="col-sm-2">
+                        <input id="wechatmsg" type="button" class="btn btn-info" value="消息测试">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="offset-sm-2 col-sm-10">
+                        <button type="submit" class="btn btn-info">保存</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{/block}
+{block name="footer"}
+{$select2|raw}
+<script>
+    $("[name=openid]").click(function () {
+        let _this = $(this);
+        let src = $(this).data("img");
+        console.log(src);
+        Swal.fire({
+            imageUrl: src,
+            title: "点击图片刷新二维码"
+        });
+        $(".swal2-image").click(function () {
+            var data = {
+                wxstate: "{$wxstate}",
+                proxy_id: {$proxy_id},
+                shop_id: {$shop_id}
+            };
+            $.ajax({
+                url: "{:url('staff/postbind')}",
+                data: data,
+                success: function (result) {
+                    _this.data("img", result.url + "?_={:time()}");
+                    _this.click();
+                    $("#img").attr('src', result.url);
+                }
+            });
+        });
+
+        let myVar = setInterval(function () {
+            var data = {
+                wxstate: "{$wxstate}",
+            };
+            $.ajax({
+                url: "{:url('staff/queryOpenid')}",
+                data: data,
+                success: function (result) {
+                    if (result.code == 0) {
+                        $("[name=notice_id]").val(result.data.id);
+                        $("[name=openid]").val(result.data.openid);
+                        clearInterval(myVar);
+                        Swal.fire({
+                            title: "绑定成功",
+                            type: "info",
+                            timer: 2000
+                        });
+                    }
+                }
+            });
+        }, 1500);
+    });
+
+
+    $("#wechatmsg").click(function () {
+        if ($("[name=openid]").val() == '') return true;
+        $.ajax({
+            url: "{:url('staff/sendNotice')}",
+            data: {
+                openid: $("[name=openid]").val()
+            }
+
+        });
+    });
+
+    $("#shop_id").select2({
+        width: 250,
+        theme: "bootstrap4",
+        placeholder: "选择用户",
+        allowClear: true,
+        ajax: {
+            url: "{:url('miniuser/users')}",
+            dataType: "json",
+            data: function (params) {
+                let query = {
+                    nickname: params.term,
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data,
+                    pagination: {
+                        more: data.length >= 100
+                    }
+                };
+            }
+        }
+    });
+    $("#shop_type").select2({
+        width: 250,
+        theme: "bootstrap4",
+        placeholder: "选择平台",
+        allowClear: true,
+        ajax: {
+            url: "{:url('miniuser/platform')}",
+            dataType: "json",
+            data: function (params) {
+                let query = {
+                    nickname: params.term,
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data,
+                    pagination: {
+                        more: data.length >= 100
+                    }
+                };
+            }
+        }
+    });
+    //编辑时自动选择数据
+    /*$.ajax({
+        type: 'GET',
+        url: "{:url('miniuser/users',['id'=>$shop_id??0])}"
+    }).then(function (data) {
+        let option;
+        let news_item = $("[name=shop_id]");
+        $(data).each((index,item)=>{
+            console.log(item)
+            option = new Option(item.text, item.id, true, true);
+            news_item.append(option).trigger('change');
+        })
+        news_item.trigger({
+            type: 'select2:select',
+            params: {
+                data: data
+            }
+        });
+    });*/
+</script>
+{/block}

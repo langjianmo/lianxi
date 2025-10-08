@@ -1,0 +1,77 @@
+{extend name="common/layout" /}
+{block name="content"}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">修改密码</h3>
+    </div>
+    <div class="card-body">
+        <form class="form-horizontal" method="post" data-ajax="">
+            <div class="card-body">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">账号</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control disabled" disabled value="{$proxy.account}"
+                               autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">密码</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="password" value="" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">提现方式</label>
+                    <div class="col-sm-5">
+                        <select name="CashOutType" class="my-select2">
+                            <option value="">请选择代理微信</option>
+                            <option value="1">微信</option>
+                            <option value="2">银行卡</option>
+                        </select>
+                    </div>
+                    {IF isset($IsAutoOut)}
+                    <div class="col-sm-5 d-flex align-items-center">
+                        <div class="checkbox checkbox-primary form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="AutoOut" name="AutoOut" {if isset($AutoOut)}checked{/if} value="1">
+                            <label class="form-check-label" for="AutoOut">是否自动提现</label>
+                            <small style="margin-left: 20px">自动/手动提现皆为:<kbd>T+1模式</kbd></small>
+                        </div>
+                    </div>
+                    {/IF}
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">代理银行卡</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control disabled" disabled value="{$BankCard|default=''}"
+                               autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="offset-sm-2 col-sm-10">
+                        <button type="submit" class="btn btn-info">保存</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{/block}
+{block name="footer"}
+{$select2|raw}
+<script>
+    $(".my-select2").select2({
+        width: 150,//组件宽度
+        theme: "bootstrap4",
+        placeholder: "请选择提现方式",
+        allowClear: false,
+        minimumResultsForSearch: -1,
+        data: [
+            {id: 1, text: "微信"},
+            {id: 2, text: "银行卡"}
+        ]
+    });
+    {if !empty($CashOutType)}
+    $(".my-select2").select2('val', "{$CashOutType|default=''}")
+    {/if}
+</script>
+{/block}

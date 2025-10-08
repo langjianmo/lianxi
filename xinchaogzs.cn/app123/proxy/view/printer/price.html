@@ -1,0 +1,246 @@
+{extend name="common/layout" /}
+{block name="content"}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">打印价格设置</h3>
+    </div>
+    <div class="card-body">
+        <form class="form-horizontal" method="post" data-ajax="">
+            <input type="hidden" name="id" value="{$printer.id}">
+            <div class="card-body">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">店铺名称</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" disabled value="{$printer.shop_name}"
+                               autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">设备名称</label>
+                    <div class="col-sm-10">
+                        <input type="hidden" id='CashOutType_all' name="CashOutType_all">
+                        <select name="CashOutType" id="CashOutType" class="my-select2">
+                        </select>
+                        <!--<input type="text" class="form-control" disabled value="{$printer.name}" autocomplete="off">-->
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">图文打印</label>
+                    <div class="col-sm-10">
+                        <div class="input-group mb-4">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">最低消费(0为关闭)</span>
+                            </div>
+                            <input type="text" class="form-control" name="type[99]"
+                                   value="{:bcdiv($price[99]??0,100,empty($price[99])?0:2)}" required
+                                   autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">元/页</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">A4文档黑白单面</span>
+                            </div>
+                            <input type="text" class="form-control" name="type[1]" value="{:bcdiv($price[1]??1,100,2)}"
+                                   required autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">元/页</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">A4文档黑白双面</span>
+                            </div>
+                            <input type="text" class="form-control" name="type[2]" value="{:bcdiv($price[2]??1,100,2)}"
+                                   required autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">元/页</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">A4文档彩色单面</span>
+                            </div>
+                            <input type="text" class="form-control" name="type[3]" value="{:bcdiv($price[3]??1,100,2)}"
+                                   required autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">元/页</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-4">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">A4文档彩色双面</span>
+                            </div>
+                            <input type="text" class="form-control" name="type[4]" value="{:bcdiv($price[4]??1,100,2)}"
+                                   required autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">元/页</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">A3文档黑白单面</span>
+                            </div>
+                            <input type="text" class="form-control" name="type[13]"
+                                   value="{:bcdiv($price[13]??1,100,2)}" required autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">元/页</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">A3文档黑白双面</span>
+                            </div>
+                            <input type="text" class="form-control" name="type[14]"
+                                   value="{:bcdiv($price[14]??1,100,2)}" required autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">元/页</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">A3文档彩色单面</span>
+                            </div>
+                            <input type="text" class="form-control" name="type[15]"
+                                   value="{:bcdiv($price[15]??1,100,2)}" required autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">元/页</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-4">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">A3文档彩色双面</span>
+                            </div>
+                            <input type="text" class="form-control" name="type[16]"
+                                   value="{:bcdiv($price[16]??1,100,2)}" required autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">元/页</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">拍照扫描黑白单面</span>
+                            </div>
+                            <input type="text" class="form-control" name="type[5]" value="{:bcdiv($price[5]??1,100,2)}"
+                                   required autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">元/页</span>
+                            </div>
+                        </div>
+                        <!--						<div class="input-group mb-1">-->
+                        <!--							<div class="input-group-prepend">-->
+                        <!--								<span class="input-group-text">拍照扫描黑白双面</span>-->
+                        <!--							</div>-->
+                        <!--							<input type="text" class="form-control" name="type[6]" value="{:bcdiv($price[6]??1,100,2)}" required autocomplete="off">-->
+                        <!--							<div class="input-group-append">-->
+                        <!--								<span class="input-group-text">元/页</span>-->
+                        <!--							</div>-->
+                        <!--						</div>-->
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">拍照扫描彩色单面</span>
+                            </div>
+                            <input type="text" class="form-control" name="type[7]" value="{:bcdiv($price[7]??1,100,2)}"
+                                   required autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">元/页</span>
+                            </div>
+                        </div>
+                        <!--						<div class="input-group mb-4">-->
+                        <!--							<div class="input-group-prepend">-->
+                        <!--								<span class="input-group-text">拍照扫描彩色双面</span>-->
+                        <!--							</div>-->
+                        <!--							<input type="text" class="form-control" name="type[8]" value="{:bcdiv($price[8]??1,100,2)}" required autocomplete="off">-->
+                        <!--							<div class="input-group-append">-->
+                        <!--								<span class="input-group-text">元/页</span>-->
+                        <!--							</div>-->
+                        <!--						</div>-->
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">身份证复印黑白</span>
+                            </div>
+                            <input type="text" class="form-control" name="type[9]" value="{:bcdiv($price[9]??1,100,2)}"
+                                   required autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">元/页</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-4">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">身份证复印彩色</span>
+                            </div>
+                            <input type="text" class="form-control" name="type[10]"
+                                   value="{:bcdiv($price[10]??1,100,2)}" required autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">元/页</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">照片打印</span>
+                            </div>
+                            <input type="text" class="form-control" name="type[11]"
+                                   value="{:bcdiv($price[11]??1,100,2)}" required autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">元/页</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">证件照打印</span>
+                            </div>
+                            <input type="text" class="form-control" name="type[12]"
+                                   value="{:bcdiv($price[12]??1,100,2)}" required autocomplete="off">
+                            <div class="input-group-append">
+                                <span class="input-group-text">元/页</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="offset-sm-2 col-sm-10">
+                        <button type="submit" class="btn btn-info">保存</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{/block}
+{block name="footer"}
+{$select2|raw}
+<script>
+
+    $(".my-select2").select2({
+        width: "100%",//组件宽度
+        theme: "bootstrap4",
+        placeholder: "请选择打印机",
+        multiple: true,
+        data: {$list | raw}
+    });
+    {if !empty($printer.id)}
+    $(".my-select2").val(['{$printer.id}']).trigger('change');
+    {/if}
+
+        $(".my-select2").change(function () {
+            f();
+        })
+
+        function f() {
+            let o = document.getElementById("CashOutType").getElementsByTagName('option');
+            let all = "";
+            console.log(o);
+            for (let i = 0; i < o.length; i++) {
+                if (o[i].selected) {
+                    all += o[i].value + ','
+                }
+            }
+            all = all.substr(0, all.length - 1);
+            $("#CashOutType_all").val(all);
+        }
+
+        $(f())
+</script>
+{/block}
